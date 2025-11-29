@@ -219,6 +219,108 @@ Then check Settings → Keyboard → Input Sources.
 
 ---
 
+## Step 7: Enable Layout at Login Screen (GDM)
+
+By default, the login screen runs as a separate user (`gdm`) and won't have access to your custom layout. Here's how to enable it:
+
+### Option A: Set system-wide default keyboard (Recommended)
+
+This method sets your layout as the system default for login screen, TTY consoles, and new users.
+
+**Step 1:** Edit the keyboard configuration file:
+
+```bash
+sudo nano /etc/default/keyboard
+```
+
+**Step 2:** Set these values:
+
+```
+XKBMODEL="pc105"
+XKBLAYOUT="us"
+XKBVARIANT="canaryangle"
+XKBOPTIONS=""
+```
+
+**Step 3:** Apply the changes:
+
+```bash
+sudo dpkg-reconfigure keyboard-configuration
+```
+
+**Step 4:** Reboot to apply everywhere:
+
+```bash
+sudo reboot
+```
+
+### Option B: Copy your user's keyboard settings to GDM
+
+If you want GDM to mirror your user settings:
+
+```bash
+sudo cp ~/.config/dconf/user /var/lib/gdm3/.config/dconf/
+sudo chown gdm:gdm /var/lib/gdm3/.config/dconf/user
+```
+
+### Option C: Configure GDM directly with gsettings
+
+```bash
+sudo -u gdm dbus-launch gsettings set org.gnome.desktop.input-sources sources "[('xkb', 'us+canaryangle')]"
+```
+
+---
+
+## Step 8: Enable Layout in Virtual Consoles (TTY)
+
+When you switch to a text-only console with `Ctrl+Alt+F3`, it uses a separate console keymap system. To use your layout there:
+
+**Step 1:** Generate a console keymap from your XKB layout:
+
+```bash
+ckbcomp -layout us -variant canaryangle | sudo tee /usr/share/keymaps/canaryangle.kmap > /dev/null
+```
+
+**Step 2:** Ensure `/etc/default/keyboard` is configured (see Step 7, Option A):
+
+```bash
+sudo nano /etc/default/keyboard
+```
+
+Verify it contains:
+
+```
+XKBMODEL="pc105"
+XKBLAYOUT="us"
+XKBVARIANT="canaryangle"
+XKBOPTIONS=""
+```
+
+**Step 3:** Apply the console keymap:
+
+```bash
+sudo setupcon
+```
+
+**Step 4:** Verify (optional) — switch to a TTY with `Ctrl+Alt+F3` and test your layout.
+
+To return to your graphical session, press `Ctrl+Alt+F2` (or `F1` depending on your system).
+
+---
+
+## Where Will Your Layout Work?
+
+| Environment | Works After Basic Install? | Additional Steps Needed |
+|-------------|---------------------------|------------------------|
+| Desktop Session (GNOME, KDE) | ✅ Yes | None |
+| GUI Terminal Emulators | ✅ Yes | None |
+| Login Screen (GDM/SDDM) | ❌ No | Step 7 |
+| Virtual Console (TTY) | ❌ No | Step 8 |
+| SSH Sessions | ✅ Yes | None (uses client layout) |
+| New User Accounts | ❌ No | Step 7, Option A |
+
+---
+
 ## Troubleshooting
 
 ### Layout doesn't appear in Settings
