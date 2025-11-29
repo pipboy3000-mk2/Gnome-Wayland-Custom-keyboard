@@ -77,6 +77,42 @@ setxkbmap -layout us -variant canaryangle -print
 
 Log out and back in, then go to **Settings → Keyboard → Input Sources** and add "English (Canary W/ang)".
 
+### 6. (Optional) Enable at login screen and TTY
+
+To use your layout at the login screen and virtual consoles, edit `/etc/default/keyboard`:
+
+```bash
+sudo nano /etc/default/keyboard
+```
+
+Set these values:
+
+```
+XKBMODEL="pc105"
+XKBLAYOUT="us"
+XKBVARIANT="canaryangle"
+XKBOPTIONS=""
+```
+
+Apply and reboot:
+
+```bash
+sudo dpkg-reconfigure keyboard-configuration
+sudo reboot
+```
+
+See [INSTALL-CUSTOM-KEYBOARD-LAYOUT.md](INSTALL-CUSTOM-KEYBOARD-LAYOUT.md) for more options.
+
+## Where Does the Layout Work?
+
+| Environment | Works After Basic Install? | Additional Setup |
+|-------------|---------------------------|------------------|
+| Desktop Session | ✅ Yes | — |
+| GUI Terminals | ✅ Yes | — |
+| Login Screen (GDM) | ❌ No | See Step 6 |
+| Virtual Console (TTY) | ❌ No | See Step 6 |
+| SSH Sessions | ✅ Yes | — |
+
 ## Files
 
 | File | Description |
